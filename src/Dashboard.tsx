@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import Papa from 'papaparse';
 import { LineChart, Line, XAxis, YAxis, Tooltip, BarChart, Bar, CartesianGrid, Legend } from 'recharts';
 import './App.css';
@@ -6,29 +6,57 @@ import './App.css';
 type VehicleData = {
   Make: string;
   Model: string;
-  Year: string;
-  Country: string;
   Model_Year: string;
+  State: string;
+  Country: string;
+  Electric_Range: string;
 };
 
 const Dashboard: React.FC = () => {
   const [vehicleData, setVehicleData] = useState<VehicleData[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
-  // Fetch and parse CSV data
-  useEffect(() => {
-    Papa.parse('/Electric_Vehicle_Population_Data.csv', {
+  // Function to load CSV data in chunks (optimized)
+  const loadCSVData = (url: string, chunkSize: number) => {
+    Papa.parse(url, {
       download: true,
       header: true,
       skipEmptyLines: true,
-      complete: (result) => {
-        console.log("data", result.data);
-        setVehicleData(result.data as VehicleData[]);
+      chunk: (results) => {
+        setVehicleData((prevData) => [...prevData, ...(results.data as VehicleData[])]);
       },
+      complete: () => setLoading(false),
     });
- }, []);
+  };
 
- useEffect(() => {
-    console.log("Updated vehicleData", vehicleData);
+  // useEffect to load CSV data
+  useEffect(() => {
+    loadCSVData('/Electric_Vehicle_Population_Data.csv', 1000); // Load in chunks of 1000 rows
+  }, []);
+
+  // Memoize charts to prevent re-renders on every data change
+  const barChart = useMemo(() => {
+    return (
+      <BarChart width={900} height={500} data={vehicleData}>
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="Model_Year" />
+        <YAxis />
+        <Tooltip />
+        <Legend />
+        <Bar dataKey="Model" fill="#82ca9d" />
+      </BarChart>
+    );
+  }, [vehicleData]);
+
+  const lineChart = useMemo(() => {
+    return (
+      <LineChart width={900} height={300} data={vehicleData}>
+        <XAxis dataKey="Model_Year" />
+        <YAxis />
+        <Tooltip />
+        <Line type="monotone" dataKey="Electric_Range" stroke="#8884d8" />
+      </LineChart>
+    );
   }, [vehicleData]);
 
   return (
@@ -38,31 +66,19 @@ const Dashboard: React.FC = () => {
       {/* Display Summary Statistics */}
       <section>
         <h2>Summary Metrics</h2>
-        <p>Total Vehicles: {vehicleData.length === 0 ? "Loading Data":vehicleData.length}</p>
+        <p>Total Vehicles: {loading ? "Loading Data..." : vehicleData.length}</p>
       </section>
 
       {/* Bar Chart: Vehicles by Year */}
       <section>
         <h2>Vehicle Registrations Over Years</h2>
-        <BarChart width={800} height={500} data={vehicleData}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="Year" />
-          <YAxis />
-          <Tooltip />
-          <Legend />
-          <Bar dataKey="Model" fill="#82ca9d" />
-        </BarChart>
+        {barChart}
       </section>
 
       {/* Line Chart Example */}
       <section>
         <h2>Battery Capacity Trends</h2>
-        <LineChart width={600} height={300} data={vehicleData}>
-          <XAxis dataKey="Year" />
-          <YAxis />
-          <Tooltip />
-          <Line type="monotone" dataKey="Model_Year" stroke="#8884d8" />
-        </LineChart>
+        {lineChart}
       </section>
     </div>
   );
