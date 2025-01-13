@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/MapUp-Analytics-Dashboard-Frontend/static/css/main.20843972.css",
+    "main.js": "/MapUp-Analytics-Dashboard-Frontend/static/js/main.01289463.js",
+    "static/js/453.3d0d2b63.chunk.js": "/MapUp-Analytics-Dashboard-Frontend/static/js/453.3d0d2b63.chunk.js",
+    "index.html": "/MapUp-Analytics-Dashboard-Frontend/index.html",
+    "main.20843972.css.map": "/MapUp-Analytics-Dashboard-Frontend/static/css/main.20843972.css.map",
+    "main.01289463.js.map": "/MapUp-Analytics-Dashboard-Frontend/static/js/main.01289463.js.map",
+    "453.3d0d2b63.chunk.js.map": "/MapUp-Analytics-Dashboard-Frontend/static/js/453.3d0d2b63.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.20843972.css",
+    "static/js/main.01289463.js"
+  ]
+}
